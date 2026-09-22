@@ -194,8 +194,8 @@
                                 <!-- Next due status -->
                                 <div class="text-end">
                                     <div th:if="${comp.nextDueDate != null}">
-                                        <span th:with="today=${#temporals.createToday()},
-                                                       daysLeft=${#temporals.daysBetween(today, comp.nextDueDate)}"
+                                        <span th:with="today=${T(java.time.LocalDate).now()},
+                                                       daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(today, comp.nextDueDate)}"
                                               th:class="${daysLeft < 0}    ? 'type-badge status-overdue'  :
                                                          (daysLeft <= 7)  ? 'type-badge status-due-soon' :
                                                                              'type-badge status-ok'">
