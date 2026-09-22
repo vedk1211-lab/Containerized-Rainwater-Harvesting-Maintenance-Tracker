@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="View system details and manage components"/>
+    <title th:text="${system.name} + ' | RWH Tracker'">System Detail | RWH Tracker</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        .navbar {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            box-shadow: 0 2px 12px rgba(13,110,253,0.25);
+        }
+        .brand-icon { font-size: 1.4rem; color: #20c997; }
+
+        .page-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h1 { font-weight: 700; margin-bottom: 0.25rem; }
+        .page-header p  { opacity: 0.85; margin-bottom: 0; }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        /* ── Component type badges ───────────────────────────────────────────── */
+        .type-badge { font-size: 0.75rem; padding: 0.35em 0.75em; border-radius: 6px; font-weight: 600; }
+        .type-TANK                  { background: #dbeafe; color: #1d4ed8; }
+        .type-FILTER                { background: #d1fae5; color: #065f46; }
+        .type-FIRST_FLUSH_DIVERTER  { background: #ede9fe; color: #5b21b6; }
+        .type-GUTTER_MESH           { background: #fef3c7; color: #92400e; }
+        .type-PUMP                  { background: #fee2e2; color: #991b1b; }
+        .type-OVERFLOW              { background: #e5e7eb; color: #374151; }
+
+        /* ── Status pill ─────────────────────────────────────────────────────── */
+        .status-overdue   { background: #fee2e2; color: #991b1b; }
+        .status-due-soon  { background: #fef3c7; color: #92400e; }
+        .status-ok        { background: #d1fae5; color: #065f46; }
+        .status-unknown   { background: #e5e7eb; color: #374151; }
+
+        /* ── Add component form ───────────────────────────────────────────────── */
+        .add-component-card .card-header {
+            background: linear-gradient(135deg, #20c997 0%, #0d9488 100%);
+            color: #fff;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .form-label { font-weight: 600; font-size: 0.875rem; color: #374151; }
+        .form-control, .form-select {
+            border-radius: 8px;
+            border-color: #d1d5db;
+            padding: 0.6rem 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #20c997;
+            box-shadow: 0 0 0 3px rgba(32,201,151,0.18);
+        }
+
+        /* Component row hover */
+        .component-row { transition: background 0.15s; }
+        .component-row:hover { background: #f8faff; }
+        .component-icon { font-size: 1.4rem; }
+
+        .empty-components {
+            text-align: center;
+            padding: 2.5rem;
+            color: #9ca3af;
+        }
+        .empty-components i { font-size: 2.5rem; opacity: 0.5; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-droplet-fill brand-icon"></i>
+            RWH Tracker
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/systems}">
+                        <i class="bi bi-hdd-stack me-1"></i>Systems
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-light btn-sm ms-2 px-3"
+                       th:href="@{/systems/new}">
+                        <i class="bi bi-plus-circle me-1"></i>New System
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container pb-5">
+
+    <!-- Flash message -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/systems}">Systems</a></li>
+            <li class="breadcrumb-item active" th:text="${system.name}">System</li>
+        </ol>
+    </nav>
+
+    <!-- Page header -->
+    <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            <h1><i class="bi bi-droplet-fill me-2"></i><span th:text="${system.name}">System Name</span></h1>
+            <p><i class="bi bi-geo-alt me-1"></i><span th:text="${system.location}">Location</span></p>
+        </div>
+        <span class="badge bg-light text-dark fs-6 px-3 py-2">
+            <i class="bi bi-puzzle me-1"></i>
+            <span th:text="${#lists.size(components)}">0</span> component(s)
+        </span>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ── Left column: Component list ──────────────────────────────────── -->
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-puzzle me-2 text-primary"></i>Components</h5>
+                </div>
+                <div class="card-body p-0">
+
+                    <!-- Empty state -->
+                    <div th:if="${#lists.isEmpty(components)}" class="empty-components">
+                        <i class="bi bi-gear d-block mb-2"></i>
+                        <p class="mb-0">No components yet. Add one using the form →</p>
+                    </div>
+
+                    <!-- Component list -->
+                    <ul class="list-group list-group-flush" th:unless="${#lists.isEmpty(components)}">
+                        <li class="list-group-item component-row px-4 py-3"
+                            th:each="comp : ${components}">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon per type -->
+                                <div class="mt-1">
+                                    <i th:class="${comp.type.name() == 'TANK'                 ? 'bi bi-water component-icon text-primary'        :
+                                                  comp.type.name() == 'FILTER'               ? 'bi bi-funnel component-icon text-success'        :
+                                                  comp.type.name() == 'FIRST_FLUSH_DIVERTER' ? 'bi bi-diagram-3 component-icon text-purple'      :
+                                                  comp.type.name() == 'GUTTER_MESH'          ? 'bi bi-grid-3x3 component-icon text-warning'      :
+                                                  comp.type.name() == 'PUMP'                 ? 'bi bi-arrow-repeat component-icon text-danger'   :
+                                                                                               'bi bi-arrow-bar-up component-icon text-secondary'}"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <strong class="text-dark" th:text="${comp.name}">Component Name</strong>
+                                        <span th:class="'type-badge type-' + ${comp.type.name()}"
+                                              th:text="${comp.type.name().replace('_',' ')}">TYPE</span>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-calendar-check me-1"></i>
+                                        Interval: <strong th:text="${comp.intervalDays}">0</strong> days
+                                        <span th:if="${comp.lastMaintainedAt != null}" class="ms-3">
+                                            <i class="bi bi-clock-history me-1"></i>
+                                            Last: <span th:text="${comp.lastMaintainedAt}">—</span>
+                                        </span>
+                                        <span th:if="${comp.lastMaintainedAt == null}" class="ms-3 text-muted fst-italic">
+                                            Never maintained
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Next due status -->
+                                <div class="text-end">
+                                    <div th:if="${comp.nextDueDate != null}">
+                                        <span th:with="today=${#temporals.createToday()},
+                                                       daysLeft=${#temporals.daysBetween(today, comp.nextDueDate)}"
+                                              th:class="${daysLeft < 0}    ? 'type-badge status-overdue'  :
+                                                         (daysLeft <= 7)  ? 'type-badge status-due-soon' :
+                                                                             'type-badge status-ok'">
+                                            <i th:class="${daysLeft < 0}   ? 'bi bi-exclamation-triangle me-1' :
+                                                          (daysLeft <= 7) ? 'bi bi-clock me-1'               :
+                                                                             'bi bi-check-circle me-1'"></i>
+                                            <span th:if="${daysLeft < 0}">Overdue</span>
+                                            <span th:if="${daysLeft >= 0 and daysLeft <= 7}" th:text="'Due in ' + ${daysLeft} + 'd'"></span>
+                                            <span th:if="${daysLeft > 7}" th:text="${comp.nextDueDate}"></span>
+                                        </span>
+                                    </div>
+                                    <span th:if="${comp.nextDueDate == null}"
+                                          class="type-badge status-unknown">Not scheduled</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Right column: Add component form ─────────────────────────────── -->
+        <div class="col-lg-5">
+            <div class="card add-component-card">
+                <div class="card-header py-3 px-4">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-plus-circle me-2"></i>Add Component</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/systems/{id}/components(id=${system.id})}"
+                          th:object="${newComponent}"
+                          method="post" novalidate>
+
+                        <!-- Component Name -->
+                        <div class="mb-3">
+                            <label for="compName" class="form-label">Component Name <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   id="compName"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                                   th:field="*{name}"
+                                   placeholder="e.g. Main Storage Tank"/>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+                                 th:errors="*{name}">Name error</div>
+                        </div>
+
+                        <!-- Component Type -->
+                        <div class="mb-3">
+                            <label for="compType" class="form-label">Type <span class="text-danger">*</span></label>
+                            <select id="compType"
+                                    class="form-select"
+                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'"
+                                    th:field="*{type}">
+                                <option value="">— Select type —</option>
+                                <option th:each="t : ${componentTypes}"
+                                        th:value="${t}"
+                                        th:text="${t.name().replace('_',' ')}">Type</option>
+                            </select>
+                            <div class="form-text text-muted small">
+                                The maintenance interval will be set automatically based on type.
+                            </div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}"
+                                 th:errors="*{type}">Type error</div>
+                        </div>
+
+                        <!-- Override interval (optional) -->
+                        <div class="mb-3">
+                            <label for="compInterval" class="form-label">
+                                Custom Interval (days)
+                                <span class="text-muted fw-normal small">— optional</span>
+                            </label>
+                            <input type="number"
+                                   id="compInterval"
+                                   class="form-control"
+                                   th:field="*{intervalDays}"
+                                   min="1" max="3650"
+                                   placeholder="Leave 0 to use type default"/>
+                        </div>
+
+                        <!-- Last Maintained At (optional) -->
+                        <div class="mb-4">
+                            <label for="compLastMaintained" class="form-label">
+                                Last Maintained
+                                <span class="text-muted fw-normal small">— optional</span>
+                            </label>
+                            <input type="date"
+                                   id="compLastMaintained"
+                                   class="form-control"
+                                   th:field="*{lastMaintainedAt}"/>
+                            <div class="form-text text-muted small">
+                                If set, the next due date will be calculated automatically.
+                            </div>
+                        </div>
+
+                        <button type="submit" id="addComponentBtn"
+                                class="btn btn-success w-100 fw-semibold py-2">
+                            <i class="bi bi-plus-circle me-2"></i>Add Component
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
