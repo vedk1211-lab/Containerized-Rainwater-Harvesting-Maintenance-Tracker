@@ -194,14 +194,10 @@
                                 <!-- Next due status -->
                                 <div class="text-end">
                                     <div th:if="${comp.nextDueDate != null}">
-                                        <span th:with="today=${#temporals.createToday()},
-                                                       daysLeft=${#temporals.daysBetween(today, comp.nextDueDate)}"
-                                              th:class="${daysLeft < 0}    ? 'type-badge status-overdue'  :
-                                                         (daysLeft <= 7)  ? 'type-badge status-due-soon' :
-                                                                             'type-badge status-ok'">
-                                            <i th:class="${daysLeft < 0}   ? 'bi bi-exclamation-triangle me-1' :
-                                                          (daysLeft <= 7) ? 'bi bi-clock me-1'               :
-                                                                             'bi bi-check-circle me-1'"></i>
+                                        <span th:with="today=${T(java.time.LocalDate).now()},
+                                                       daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(today, comp.nextDueDate)}"
+                                              th:class="${daysLeft < 0} ? 'type-badge status-overdue' : (${daysLeft <= 7} ? 'type-badge status-due-soon' : 'type-badge status-ok')">
+                                            <i th:class="${daysLeft < 0} ? 'bi bi-exclamation-triangle me-1' : (${daysLeft <= 7} ? 'bi bi-clock me-1' : 'bi bi-check-circle me-1')"></i>
                                             <span th:if="${daysLeft < 0}">Overdue</span>
                                             <span th:if="${daysLeft >= 0 and daysLeft <= 7}" th:text="'Due in ' + ${daysLeft} + 'd'"></span>
                                             <span th:if="${daysLeft > 7}" th:text="${comp.nextDueDate}"></span>
@@ -209,6 +205,14 @@
                                     </div>
                                     <span th:if="${comp.nextDueDate == null}"
                                           class="type-badge status-unknown">Not scheduled</span>
+                                    <div class="mt-2">
+                                        <a th:href="@{/components/{id}/logs/new(id=${comp.id})}" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-clipboard2-check me-1"></i>Log Maintenance
+                                        </a>
+                                        <a th:href="@{/dashboard/components/{id}(id=${comp.id})}" class="btn btn-sm btn-outline-primary ms-1">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </li>
