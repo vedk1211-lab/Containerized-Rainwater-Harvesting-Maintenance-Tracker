@@ -205,6 +205,14 @@
                                     </div>
                                     <span th:if="${comp.nextDueDate == null}"
                                           class="type-badge status-unknown">Not scheduled</span>
+                                    <div class="mt-2">
+                                        <a th:href="@{/components/{id}/logs/new(id=${comp.id})}" class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-clipboard2-check me-1"></i>Log Maintenance
+                                        </a>
+                                        <a th:href="@{/dashboard/components/{id}(id=${comp.id})}" class="btn btn-sm btn-outline-primary ms-1">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </li>
