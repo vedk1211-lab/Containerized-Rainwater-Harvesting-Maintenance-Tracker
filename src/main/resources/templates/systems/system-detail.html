@@ -196,12 +196,8 @@
                                     <div th:if="${comp.nextDueDate != null}">
                                         <span th:with="today=${T(java.time.LocalDate).now()},
                                                        daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(today, comp.nextDueDate)}"
-                                              th:class="${daysLeft < 0}    ? 'type-badge status-overdue'  :
-                                                         (daysLeft <= 7)  ? 'type-badge status-due-soon' :
-                                                                             'type-badge status-ok'">
-                                            <i th:class="${daysLeft < 0}   ? 'bi bi-exclamation-triangle me-1' :
-                                                          (daysLeft <= 7) ? 'bi bi-clock me-1'               :
-                                                                             'bi bi-check-circle me-1'"></i>
+                                              th:class="${daysLeft < 0} ? 'type-badge status-overdue' : (${daysLeft <= 7} ? 'type-badge status-due-soon' : 'type-badge status-ok')">
+                                            <i th:class="${daysLeft < 0} ? 'bi bi-exclamation-triangle me-1' : (${daysLeft <= 7} ? 'bi bi-clock me-1' : 'bi bi-check-circle me-1')"></i>
                                             <span th:if="${daysLeft < 0}">Overdue</span>
                                             <span th:if="${daysLeft >= 0 and daysLeft <= 7}" th:text="'Due in ' + ${daysLeft} + 'd'"></span>
                                             <span th:if="${daysLeft > 7}" th:text="${comp.nextDueDate}"></span>
