@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Active Alerts | RWH Tracker</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .navbar { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); box-shadow: 0 2px 12px rgba(13,110,253,0.25); }
+        .brand-icon { font-size: 1.4rem; color: #20c997; }
+
+        .alerts-card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .alerts-card .card-header { background: #fff; border-bottom: 1px solid #e5e7eb; border-radius: 12px 12px 0 0; }
+        
+        .alert-row { transition: background-color 0.2s; }
+        .alert-row:hover { background-color: #f8f9fa; }
+        
+        .alert-badge { font-size: 0.85rem; padding: 0.4em 0.8em; border-radius: 6px; font-weight: 600; }
+        .badge-overdue { background: #fee2e2; color: #991b1b; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        
+        .type-badge { font-size: 0.75rem; padding: 0.35em 0.75em; border-radius: 6px; font-weight: 600; }
+        .type-TANK { background: #dbeafe; color: #1d4ed8; }
+        .type-FILTER { background: #d1fae5; color: #065f46; }
+        .type-FIRST_FLUSH_DIVERTER { background: #ede9fe; color: #5b21b6; }
+        .type-GUTTER_MESH { background: #fef3c7; color: #92400e; }
+        .type-PUMP { background: #fee2e2; color: #991b1b; }
+        .type-OVERFLOW { background: #e5e7eb; color: #374151; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-droplet-fill brand-icon"></i>
+            RWH Tracker
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/systems}"><i class="bi bi-hdd-stack me-1"></i>Systems</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/alerts}"><i class="bi bi-bell me-1"></i>Alerts</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container pb-5">
+    
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="fw-bold mb-0 text-dark"><i class="bi bi-bell me-2 text-primary"></i>Active Alerts</h2>
+    </div>
+
+    <div class="card alerts-card">
+        <div class="card-header py-3 px-4">
+            <h5 class="mb-0 fw-bold text-dark">Components Requiring Attention</h5>
+        </div>
+        <div class="card-body p-0">
+            
+            <div th:if="${#lists.isEmpty(alerts)}" class="text-center py-5 text-muted">
+                <i class="bi bi-check-circle d-block mb-3 text-success" style="font-size: 3rem; opacity: 0.8;"></i>
+                <h5>All Clear!</h5>
+                <p>There are no overdue or upcoming maintenance tasks.</p>
+                <a th:href="@{/dashboard}" class="btn btn-outline-primary mt-2">Go to Dashboard</a>
+            </div>
+
+            <div class="list-group list-group-flush" th:unless="${#lists.isEmpty(alerts)}">
+                <div class="list-group-item alert-row p-4" th:each="alert : ${alerts}">
+                    <div class="d-flex w-100 justify-content-between align-items-start gap-3">
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="mt-1">
+                                <i class="bi bi-exclamation-triangle-fill fs-3" th:classappend="${alert.status.name() == 'OVERDUE'} ? 'text-danger' : 'text-warning'"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <span th:text="${alert.component.name}">Component</span>
+                                    <span th:class="'ms-2 type-badge type-' + ${alert.component.type.name()}" th:text="${alert.component.type.name().replace('_',' ')}">TYPE</span>
+                                </h5>
+                                <p class="mb-1 text-muted">
+                                    <i class="bi bi-geo-alt me-1"></i>System: <a th:href="@{/systems/{id}(id=${alert.component.system.id})}" th:text="${alert.component.system.name}">System Name</a>
+                                </p>
+                                <div class="text-muted small">
+                                    <i class="bi bi-calendar-event me-1"></i>Due Date: <strong th:text="${alert.dueDate}">Date</strong>
+                                    <span th:with="today=${T(java.time.LocalDate).now()}, daysLeft=${T(java.time.temporal.ChronoUnit).DAYS.between(today, alert.dueDate)}">
+                                        <span th:if="${daysLeft < 0}" class="text-danger fw-bold ms-2">([[${-daysLeft}]] days overdue)</span>
+                                        <span th:if="${daysLeft >= 0}" class="text-warning fw-bold ms-2">(Due in [[${daysLeft}]] days)</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end d-flex flex-column align-items-end gap-2">
+                            <span th:class="'alert-badge ' + (${alert.status.name() == 'OVERDUE'} ? 'badge-overdue' : 'badge-pending')">
+                                <i class="bi" th:classappend="${alert.status.name() == 'OVERDUE'} ? 'bi-exclamation-circle-fill me-1' : 'bi-clock-fill me-1'"></i>
+                                <span th:text="${alert.status.name()}">STATUS</span>
+                            </span>
+                            <a th:href="@{/components/{id}/logs/new(id=${alert.component.id})}" class="btn btn-sm btn-success mt-1">
+                                <i class="bi bi-clipboard2-check me-1"></i>Log Maintenance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

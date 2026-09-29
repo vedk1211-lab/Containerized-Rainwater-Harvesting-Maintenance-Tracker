@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="'History | ' + ${component.name}">History | Component</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .navbar { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); box-shadow: 0 2px 12px rgba(13,110,253,0.25); }
+        .brand-icon { font-size: 1.4rem; color: #20c997; }
+
+        .history-card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .history-card .card-header { background: #fff; border-bottom: 1px solid #e5e7eb; border-radius: 12px 12px 0 0; }
+        
+        .timeline { position: relative; padding: 20px 0; margin: 0; list-style: none; }
+        .timeline:before { content: ""; position: absolute; top: 0; bottom: 0; left: 40px; width: 2px; margin-left: -1.5px; background-color: #e9ecef; }
+        .timeline-item { position: relative; margin-bottom: 30px; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-badge { width: 40px; height: 40px; line-height: 40px; font-size: 1.2rem; text-align: center; position: absolute; top: 0; left: 20px; background-color: #0d6efd; color: white; border-radius: 50%; z-index: 100; box-shadow: 0 0 0 4px #f0f4f8; }
+        .timeline-panel { position: relative; margin-left: 80px; background: #fff; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+        .timeline-panel:before { position: absolute; top: 10px; right: -15px; display: inline-block; border-top: 15px solid transparent; border-left: 15px solid #ccc; border-right: 0 solid #ccc; border-bottom: 15px solid transparent; content: " "; }
+        
+        .type-badge { font-size: 0.75rem; padding: 0.35em 0.75em; border-radius: 6px; font-weight: 600; }
+        .type-TANK { background: #dbeafe; color: #1d4ed8; }
+        .type-FILTER { background: #d1fae5; color: #065f46; }
+        .type-FIRST_FLUSH_DIVERTER { background: #ede9fe; color: #5b21b6; }
+        .type-GUTTER_MESH { background: #fef3c7; color: #92400e; }
+        .type-PUMP { background: #fee2e2; color: #991b1b; }
+        .type-OVERFLOW { background: #e5e7eb; color: #374151; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" th:href="@{/}">
+            <i class="bi bi-droplet-fill brand-icon"></i>
+            RWH Tracker
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/dashboard}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/systems}"><i class="bi bi-hdd-stack me-1"></i>Systems</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/alerts}"><i class="bi bi-bell me-1"></i>Alerts</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container pb-5">
+    
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/dashboard}">Dashboard</a></li>
+            <li class="breadcrumb-item active" th:text="${component.name}">Component</li>
+        </ol>
+    </nav>
+
+    <div class="card history-card">
+        <div class="card-header py-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1 fw-bold text-dark"><i class="bi bi-clock-history me-2 text-primary"></i>Maintenance History</h3>
+                <p class="mb-0 text-muted">
+                    Component: <strong class="text-dark" th:text="${component.name}">Name</strong> 
+                    <span th:class="'ms-2 type-badge type-' + ${component.type.name()}" th:text="${component.type.name().replace('_',' ')}">TYPE</span>
+                </p>
+                <p class="mb-0 text-muted small mt-1">
+                    <i class="bi bi-geo-alt me-1"></i>System: <a th:href="@{/systems/{id}(id=${component.system.id})}" th:text="${component.system.name}">Sys</a>
+                </p>
+            </div>
+            <a th:href="@{/components/{id}/logs/new(id=${component.id})}" class="btn btn-success">
+                <i class="bi bi-clipboard2-check me-2"></i>Log Maintenance
+            </a>
+        </div>
+        <div class="card-body p-4">
+            
+            <div th:if="${#lists.isEmpty(history)}" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox d-block mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                <h5>No maintenance records found</h5>
+                <p>This component has never been maintained.</p>
+            </div>
+
+            <ul class="timeline" th:unless="${#lists.isEmpty(history)}">
+                <li class="timeline-item" th:each="log : ${history}">
+                    <div class="timeline-badge bg-primary">
+                        <i class="bi bi-wrench"></i>
+                    </div>
+                    <div class="timeline-panel">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 text-dark">Maintenance Performed</h5>
+                            <span class="badge bg-light text-dark border"><i class="bi bi-calendar-event me-1"></i><span th:text="${log.performedAt}">Date</span></span>
+                        </div>
+                        <p class="text-muted mb-2" th:if="${log.notes != null and !log.notes.isEmpty()}" th:text="${log.notes}">Notes</p>
+                        <p class="text-muted mb-2 fst-italic" th:unless="${log.notes != null and !log.notes.isEmpty()}">No notes provided.</p>
+                        
+                        <div class="mt-3" th:if="${log.photoUrl != null and !log.photoUrl.isEmpty()}">
+                            <a th:href="${log.photoUrl}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-image me-1"></i>View Photo Attached
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
