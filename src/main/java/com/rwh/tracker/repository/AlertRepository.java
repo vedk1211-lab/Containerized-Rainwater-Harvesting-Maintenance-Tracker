@@ -12,5 +12,6 @@ import java.util.Optional;
 @Repository
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     Optional<Alert> findByComponent(Component component);
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"component", "component.system"})
     List<Alert> findByStatusInOrderByDueDateAsc(List<AlertStatus> statuses);
 }

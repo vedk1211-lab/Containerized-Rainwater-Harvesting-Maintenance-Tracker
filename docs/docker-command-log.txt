@@ -1,0 +1,112 @@
+$ docker build -t rwh-tracker:1.0 -t rwh-tracker:latest .
+#0 building with "desktop-linux" instance using docker driver
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 357B done
+#1 DONE 0.0s
+...
+#14 [builder 5/5] RUN mvn -q clean package -DskipTests
+#14 DONE 493.5s
+#15 [stage-1 3/3] COPY --from=builder /app/target/*.war app.war
+#15 DONE 0.1s
+#16 exporting to image
+#16 naming to docker.io/library/rwh-tracker:1.0 done
+#16 unpacking to docker.io/library/rwh-tracker:1.0 done
+#16 naming to docker.io/library/rwh-tracker:latest done
+#16 unpacking to docker.io/library/rwh-tracker:latest done
+#16 DONE 1.2s
+
+$ docker images
+IMAGE                ID             DISK USAGE   CONTENT SIZE   EXTRA
+rwh-tracker:1.0      383ca11d8265        560MB          162MB        
+rwh-tracker:latest   383ca11d8265        560MB          162MB
+
+$ docker image inspect rwh-tracker:1.0
+[
+    {
+        "Id": "sha256:49b2a194c216bcaeb3e2991794bf317fc9061cb6438c2f921f49df2d9bf1656e",
+        "RepoTags": [
+            "rwh-tracker:1.0",
+            "rwh-tracker:latest"
+        ],
+        "Created": "2026-10-08T10:11:26.563632423Z",
+        "Config": {
+            "ExposedPorts": {
+                "8080/tcp": {}
+            }
+        },
+        "Size": 559729975
+    }
+]
+
+$ docker run -d --name rwh-tracker -p 8081:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/rwh_tracker -e SPRING_DATASOURCE_USERNAME=postgres -e SPRING_DATASOURCE_PASSWORD=****** rwh-tracker:1.0
+2dc30df76707afb2825de1e098a69b731e0c39061d737e3745f4e1538953bc9d
+
+$ docker ps
+CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+2dc30df76707   rwh-tracker:1.0   "java -jar app.war -…"   15 seconds ago   Up 15 seconds   0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   rwh-tracker
+
+$ docker logs rwh-tracker
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+2026-10-08T10:11:55.213Z  INFO 1 --- [rwh-tracker] [           main] com.rwh.tracker.RwhTrackerApplication    : Starting RwhTrackerApplication v0.0.1-SNAPSHOT using Java 21.0.12.1 with PID 1 (/app/app.war started by root in /app)
+2026-10-08T10:11:55.215Z  INFO 1 --- [rwh-tracker] [           main] com.rwh.tracker.RwhTrackerApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-10-08T10:11:55.823Z  INFO 1 --- [rwh-tracker] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-08T10:11:55.867Z  INFO 1 --- [rwh-tracker] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 39 ms. Found 4 JPA repository interfaces.
+2026-10-08T10:11:56.320Z  INFO 1 --- [rwh-tracker] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-10-08T10:11:56.335Z  INFO 1 --- [rwh-tracker] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-08T10:11:56.335Z  INFO 1 --- [rwh-tracker] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-10-08T10:11:56.387Z  INFO 1 --- [rwh-tracker] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-08T10:11:56.388Z  INFO 1 --- [rwh-tracker] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1117 ms
+2026-10-08T10:11:56.879Z  INFO 1 --- [rwh-tracker] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-08T10:11:57.112Z  INFO 1 --- [rwh-tracker] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-08T10:11:59.093Z  INFO 1 --- [rwh-tracker] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-10-08T10:11:59.101Z  INFO 1 --- [rwh-tracker] [           main] com.rwh.tracker.RwhTrackerApplication    : Started RwhTrackerApplication in 4.231 seconds (process running for 4.745)
+
+$ curl http://localhost:8081/systems
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="View and manage all registered rainwater harvesting systems"/>
+    <title>Systems | RWH Tracker</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+$ docker stop rwh-tracker
+rwh-tracker
+
+$ docker ps -a
+CONTAINER ID   IMAGE                          COMMAND                  CREATED          STATUS                                PORTS                  NAMES
+2dc30df76707   rwh-tracker:1.0                "java -jar app.war -…"   16 seconds ago   Exited (143) Less than a second ago                          rwh-tracker
+
+$ docker start rwh-tracker
+rwh-tracker
+
+$ docker restart rwh-tracker
+rwh-tracker
+
+$ docker stop rwh-tracker
+rwh-tracker
+
+$ docker rm rwh-tracker
+rwh-tracker
+
+$ docker ps -a
+CONTAINER ID   IMAGE                          COMMAND                  CREATED       STATUS                     PORTS                  NAMES
+
+$ docker run -d --name rwh-tracker -p 8081:8080 -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/rwh_tracker -e SPRING_DATASOURCE_USERNAME=postgres -e SPRING_DATASOURCE_PASSWORD=****** rwh-tracker:1.0
+f99002a66031301cab9fc2b61f9e6a4d198abd5337c6c573482d90e6605dbf32

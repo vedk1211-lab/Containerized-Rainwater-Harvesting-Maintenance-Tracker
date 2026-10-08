@@ -42,7 +42,7 @@ public class SystemService {
 
     @Transactional(readOnly = true)
     public List<RwhSystem> listSystems() {
-        return systemRepository.findAll();
+        return systemRepository.findAllWithComponents();
     }
 
     @Transactional(readOnly = true)
@@ -79,13 +79,13 @@ public class SystemService {
 
     @Transactional(readOnly = true)
     public Component getComponent(Long componentId) {
-        return componentRepository.findById(componentId)
+        return componentRepository.findByIdWithSystem(componentId)
                 .orElseThrow(() -> new NoSuchElementException("Component not found: " + componentId));
     }
 
     @Transactional(readOnly = true)
     public List<Component> getAllComponents() {
-        return componentRepository.findAll();
+        return componentRepository.findAllWithSystem();
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +94,7 @@ public class SystemService {
             return getAllComponents();
         }
         String lowerQuery = query.toLowerCase();
-        return componentRepository.findAll().stream()
+        return componentRepository.findAllWithSystem().stream()
                 .filter(c -> c.getName().toLowerCase().contains(lowerQuery) ||
                              c.getType().name().toLowerCase().contains(lowerQuery))
                 .toList();
