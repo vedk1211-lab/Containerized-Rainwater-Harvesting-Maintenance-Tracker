@@ -15,6 +15,7 @@ pipeline {
     }
 
     environment {
+        PATH       = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
         IMAGE_NAME = 'vedantkulkarni12/rwh-tracker'
         IMAGE_TAG  = "1.0.${env.BUILD_NUMBER}"
     }
@@ -45,6 +46,7 @@ pipeline {
 
         stage('Docker Check') {
             steps {
+                bat 'where docker'
                 bat 'docker version'
             }
         }
