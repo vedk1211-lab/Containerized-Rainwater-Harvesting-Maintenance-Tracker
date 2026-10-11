@@ -1,0 +1,36 @@
+# ── Build outputs ────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+
+# ── IDE files ────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# ── OS generated ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Maven wrapper ────────────────────────────────────────
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Spring Boot ──────────────────────────────────────────
+*.log
+logs/
+
+# ── Selenium screenshots ────────────────────────────────
+target/screenshots/
+
+# ── Ansible ──────────────────────────────────────────────
+ansible/group_vars/all/vault.yml
+ansible/logs/
+*.vault-pass
+

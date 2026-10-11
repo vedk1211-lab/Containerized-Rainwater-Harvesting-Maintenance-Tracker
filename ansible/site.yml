@@ -1,0 +1,187 @@
+---
+- name: Configure RWH Tracker Node
+  hosts: rwh_nodes
+  become: true
+  gather_facts: true
+
+  handlers:
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+  tasks:
+    # ── APT Packages ──────────────────────────────────────────────────────────
+    - name: Update apt cache and install base packages
+      ansible.builtin.apt:
+        name: "{{ base_packages }}"
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+      tags:
+        - apt
+        - packages
+
+    # ── Docker Engine Configuration ───────────────────────────────────────────
+    - name: Install Docker engine packages
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+      when: manage_docker_engine | bool
+      tags:
+        - docker
+
+    - name: Ensure docker group exists
+      ansible.builtin.group:
+        name: docker
+        state: present
+      when: manage_docker_engine | bool
+      tags:
+        - docker
+        - users
+
+    - name: Ensure Docker service is enabled and started
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+      when: manage_docker_engine | bool
+      ignore_errors: "{{ ansible_check_mode }}"
+      tags:
+        - docker
+
+    - name: Verify Docker is installed and accessible
+      ansible.builtin.command:
+        cmd: docker --version
+      register: docker_check
+      changed_when: false
+      failed_when: docker_check.rc != 0
+      when: not (manage_docker_engine | bool)
+      tags:
+        - docker
+
+    # ── Users and Groups ──────────────────────────────────────────────────────
+    - name: Ensure application group exists
+      ansible.builtin.group:
+        name: "{{ app_group }}"
+        state: present
+        system: true
+      tags:
+        - users
+
+    - name: Ensure application system user exists
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        group: "{{ app_group }}"
+        home: "{{ app_home }}"
+        shell: /usr/sbin/nologin
+        system: true
+        state: present
+      tags:
+        - users
+
+    - name: Add application user to docker group
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        groups: docker
+        append: true
+      when: manage_docker_engine | bool
+      tags:
+        - users
+        - docker
+
+    # ── Directories ───────────────────────────────────────────────────────────
+    - name: Create application home directory
+      ansible.builtin.file:
+        path: "{{ app_home }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0755"
+      tags:
+        - directories
+
+    - name: Create application configuration directory
+      ansible.builtin.file:
+        path: "{{ config_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0750"
+      tags:
+        - directories
+
+    - name: Create application log directory
+      ansible.builtin.file:
+        path: "{{ log_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0755"
+      tags:
+        - directories
+
+    # ── Configuration Files ───────────────────────────────────────────────────
+    - name: Template application environment file
+      ansible.builtin.template:
+        src: templates/rwh.env.j2
+        dest: "{{ config_dir }}/rwh.env"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: "0640"
+      no_log: true
+      diff: false
+      tags:
+        - config
+
+    # ── Systemd Service Unit ──────────────────────────────────────────────────
+    - name: Locate absolute path to Docker binary
+      ansible.builtin.command:
+        cmd: command -v docker
+      register: docker_bin_cmd
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      tags:
+        - systemd
+        - docker
+
+    - name: Set docker binary path fact
+      ansible.builtin.set_fact:
+        docker_bin_path: "{{ (docker_bin_cmd.stdout | trim) if (docker_bin_cmd.stdout | trim != '') else '/usr/bin/docker' }}"
+      tags:
+        - systemd
+        - docker
+
+    - name: Deploy rwh-tracker systemd service unit
+      ansible.builtin.template:
+        src: templates/rwh-tracker.service.j2
+        dest: /etc/systemd/system/rwh-tracker.service
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload systemd daemon
+      tags:
+        - systemd
+
+    - name: Flush handlers to reload systemd daemon immediately
+      ansible.builtin.meta: flush_handlers
+      tags:
+        - systemd
+
+    - name: Enable rwh-tracker systemd service without starting
+      ansible.builtin.systemd:
+        name: rwh-tracker.service
+        enabled: true
+      ignore_errors: "{{ ansible_check_mode }}"
+      tags:
+        - systemd
+
+    # ── Firewall (Optional) ───────────────────────────────────────────────────
+    - name: Allow application traffic through firewall
+      community.general.ufw:
+        rule: allow
+        port: "{{ app_port }}"
+        proto: tcp
+      when: manage_firewall | bool
+      tags:
+        - firewall

@@ -1,0 +1,26 @@
+---
+# Non-secret variables for RWH Tracker node configuration
+app_user: rwh
+app_group: rwh
+app_home: /opt/rwh-tracker
+config_dir: /opt/rwh-tracker/config
+log_dir: /var/log/rwh-tracker
+
+app_port: 8081
+container_port: 8080
+
+image_name: vedantkulkarni12/rwh-tracker
+image_tag: latest
+
+db_host: host.docker.internal
+db_port: 5432
+db_name: rwh_tracker
+db_user: postgres
+
+base_packages:
+  - curl
+  - git
+  - ca-certificates
+
+manage_docker_engine: true
+manage_firewall: false

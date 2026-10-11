@@ -1,0 +1,17 @@
+[Unit]
+Description=Containerized Rainwater Harvesting Maintenance Tracker
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_group }}
+Restart=on-failure
+RestartSec=5s
+ExecStartPre=-{{ docker_bin_path }} rm -f rwh-tracker
+ExecStart={{ docker_bin_path }} run --rm --name rwh-tracker --env-file {{ config_dir }}/rwh.env -p {{ app_port }}:{{ container_port }} {{ image_name }}:{{ image_tag }}
+ExecStop={{ docker_bin_path }} stop rwh-tracker
+
+[Install]
+WantedBy=multi-user.target
