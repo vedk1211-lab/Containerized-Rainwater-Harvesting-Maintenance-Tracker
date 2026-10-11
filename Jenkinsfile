@@ -15,9 +15,10 @@ pipeline {
     }
 
     environment {
-        PATH       = "C:\\Program Files\\Docker\\Docker\\resources\\bin;${env.PATH}"
-        IMAGE_NAME = 'vedantkulkarni12/rwh-tracker'
-        IMAGE_TAG  = "1.0.${env.BUILD_NUMBER}"
+        PATH          = "C:\\Users\\Vedant\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+        DOCKER_CONFIG = "C:\\Users\\Vedant\\.docker"
+        IMAGE_NAME    = 'vedantkulkarni12/rwh-tracker'
+        IMAGE_TAG     = "1.0.${env.BUILD_NUMBER}"
     }
 
     stages {
