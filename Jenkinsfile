@@ -42,6 +42,9 @@ pipeline {
     post {
         success {
             echo "CI pipeline passed for ${params.DEPLOY_ENV} environment."
+            script {
+                build job: 'rwh-tracker-cd', wait: false
+            }
         }
         failure {
             echo "CI pipeline failed for ${params.DEPLOY_ENV} environment."
