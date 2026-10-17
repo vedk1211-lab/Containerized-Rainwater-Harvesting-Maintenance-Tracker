@@ -1,0 +1,80 @@
+pipeline {
+    agent any
+
+    environment {
+        PATH          = "C:\\Users\\Vedant\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+        DOCKER_CONFIG = "C:\\Users\\Vedant\\.docker"
+        IMAGE_NAME    = 'vedantkulkarni12/rwh-tracker'
+        IMAGE_TAG     = "1.0.${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Docker Check') {
+            steps {
+                bat 'where docker'
+                bat 'docker version'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% -t %IMAGE_NAME%:latest --label git.commit=%GIT_COMMIT% .'
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
+                    bat '''
+                        if not exist "%WORKSPACE%\\.docker-push" mkdir "%WORKSPACE%\\.docker-push"
+                        echo {"auths":{}} > "%WORKSPACE%\\.docker-push\\config.json"
+                        echo %DH_PASS%| docker --config "%WORKSPACE%\\.docker-push" login -u %DH_USER% --password-stdin
+                        docker --config "%WORKSPACE%\\.docker-push" push %IMAGE_NAME%:%IMAGE_TAG%
+                        docker --config "%WORKSPACE%\\.docker-push" push %IMAGE_NAME%:latest
+                        docker --config "%WORKSPACE%\\.docker-push" logout
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                withCredentials([string(credentialsId: 'rwh-db-password', variable: 'DB_PASS')]) {
+                    bat '''
+                        docker network inspect rwh-ci-net >nul 2>&1 || docker network create rwh-ci-net
+                        docker volume inspect rwh-ci-db-data >nul 2>&1 || docker volume create rwh-ci-db-data
+                        docker inspect rwh-ci-db >nul 2>&1 && (
+                            docker start rwh-ci-db
+                        ) || (
+                            docker run -d --name rwh-ci-db --network rwh-ci-net --restart unless-stopped -v rwh-ci-db-data:/var/lib/postgresql/data -e POSTGRES_DB=rwh_tracker -e POSTGRES_PASSWORD=%DB_PASS% postgres:15
+                        )
+                    '''
+                    bat 'powershell -Command "$i = 0; while ($i -lt 18) { & docker exec rwh-ci-db pg_isready -U postgres; if ($LASTEXITCODE -eq 0) { exit 0 }; Start-Sleep -Seconds 5; $i++ }; exit 1"'
+                    bat 'docker rm -f rwh-tracker 2>nul || ver >nul'
+                    bat 'docker run -d --name rwh-tracker --network rwh-ci-net -p 8081:8080 --restart unless-stopped -e SPRING_DATASOURCE_URL=jdbc:postgresql://rwh-ci-db:5432/rwh_tracker -e SPRING_DATASOURCE_USERNAME=postgres -e SPRING_DATASOURCE_PASSWORD=%DB_PASS% %IMAGE_NAME%:%IMAGE_TAG%'
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                bat 'powershell -Command "$deadline = (Get-Date).AddSeconds(120); while ((Get-Date) -lt $deadline) { try { $res = Invoke-WebRequest -Uri \'http://localhost:8081/systems\' -UseBasicParsing -TimeoutSec 5; if ($res.StatusCode -eq 200) { Write-Host \'Health check passed: HTTP 200\'; exit 0 } } catch {} Start-Sleep -Seconds 5 }; Write-Error \'Health check failed: timed out\'; docker logs --tail 50 rwh-tracker; exit 1"'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Successfully deployed ${IMAGE_NAME}:${IMAGE_TAG}"
+        }
+        failure {
+            echo "Deployment failed for ${IMAGE_NAME}:${IMAGE_TAG}"
+        }
+    }
+}
