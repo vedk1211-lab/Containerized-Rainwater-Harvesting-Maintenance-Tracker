@@ -1,1 +1,1 @@
-Status: MVP in progress
+Status: MVP ready for CI/CD
