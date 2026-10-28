@@ -25,6 +25,7 @@ Thumbs.db
 # ── Spring Boot ──────────────────────────────────────────
 *.log
 logs/
+!docs/evidence/logs/
 
 # ── Selenium screenshots ────────────────────────────────
 target/screenshots/
