@@ -1,1 +1,1 @@
-Status: MVP in progress
+Status: MVP features complete
