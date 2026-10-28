@@ -1,0 +1,13 @@
+$ git branch -a
+  develop
+  feature/mvp-completion
+  feature/repo-docs-and-templates
+  feature/system-component-registration
+* main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/develop
+  remotes/origin/feature/mvp-completion
+  remotes/origin/feature/repo-docs-and-templates
+  remotes/origin/feature/system-component-registration
+  remotes/origin/main
+[Process exited with code 0]

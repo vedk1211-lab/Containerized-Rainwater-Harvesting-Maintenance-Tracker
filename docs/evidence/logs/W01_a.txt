@@ -1,0 +1,34 @@
+$ python scripts/evidence/tree.py
+.
+├── ansible
+│   ├── group_vars
+│   ├── templates
+│   ├── ansible.cfg
+│   ├── inventory.ini
+│   └── site.yml
+├── docs
+│   ├── evidence
+│   ├── logs
+│   ├── ci-cd-evidence.md
+│   ├── configuration-spec.md
+│   ├── docker-command-log.txt
+│   ├── week12-cd-evidence.md
+│   └── week13-verification.txt
+├── Documents
+│   ├── Week1_Problem_Definition_and_Scope.docx
+│   ├── Week2_Agile_Planning_and_DevOps_Workflow.docx
+│   └── Week3_Requirements_Architecture_and_Technology_Setup.docx
+├── scripts
+│   ├── evidence
+│   └── add-jenkins-credentials.ps1
+├── src
+│   ├── main
+│   └── test
+├── .dockerignore
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── Jenkinsfile
+├── Jenkinsfile.cd
+└── pom.xml
+[Process exited with code 0]

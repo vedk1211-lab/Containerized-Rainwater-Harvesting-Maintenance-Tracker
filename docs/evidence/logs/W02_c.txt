@@ -1,0 +1,8 @@
+$ git log --oneline -- docs Documents
+a43d9f7 Add evidence capture tooling
+fdd35bf Add CI/CD pipeline evidence
+cb77e8a Trigger CI/CD chain test
+cdf5610 Add Ansible configuration spec, playbook and first run log for RWH node
+097a3bb Add Dockerfile and Docker container lifecycle log
+12f6841 First Commit
+[Process exited with code 0]

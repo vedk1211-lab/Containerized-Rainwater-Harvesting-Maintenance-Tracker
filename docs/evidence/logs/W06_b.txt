@@ -1,0 +1,7 @@
+$ type docs\evidence\conflict-demo.md
+<<<<<<< HEAD
+Status: MVP features complete
+=======
+Status: MVP ready for CI/CD
+>>>>>>> demo/conflict-b
+[Process exited with code 0]

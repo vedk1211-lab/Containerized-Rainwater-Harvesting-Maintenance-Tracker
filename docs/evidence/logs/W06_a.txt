@@ -1,0 +1,35 @@
+$ type docs\evidence\conflict-demo.md && echo --- && git status --short
+<<<<<<< HEAD
+Status: MVP features complete
+=======
+Status: MVP ready for CI/CD
+>>>>>>> demo/conflict-b
+--- 
+ M docker-compose.yml
+ M docs/evidence/MANIFEST.md
+UU docs/evidence/conflict-demo.md
+?? docs/evidence/W01_a.png
+?? docs/evidence/W02_a.png
+?? docs/evidence/W02_b.png
+?? docs/evidence/W02_c.png
+?? docs/evidence/W04_a.png
+?? docs/evidence/W04_b.png
+?? docs/evidence/W04_c.png
+?? docs/evidence/W04_d.png
+?? docs/evidence/W04_e.png
+?? docs/evidence/W05_a.png
+?? docs/evidence/W05_b.png
+?? docs/evidence/W05_c.png
+?? docs/evidence/W05_d.png
+?? docs/evidence/W05_e.png
+?? docs/evidence/W06_a.png
+?? docs/evidence/W06_e.png
+?? docs/evidence/logs/W01_a.txt
+?? docs/evidence/logs/W02_c.txt
+?? docs/evidence/logs/W04_e.txt
+?? docs/evidence/logs/W05_a.txt
+?? docs/evidence/logs/W05_e.txt
+?? docs/evidence/logs/W06_a.txt
+?? docs/evidence/logs/W06_e.txt
+?? scripts/evidence/tree.py
+[Process exited with code 0]

@@ -1,0 +1,19 @@
+$ git log --oneline --graph --decorate -15
+*   4b418d2 (HEAD -> develop, origin/develop) Merge pull request #4 from vedk1211-lab/feature/repo-docs-and-templates
+|\  
+| * 9486bb1 (origin/feature/repo-docs-and-templates, feature/repo-docs-and-templates) chore: add GitHub pull request template
+| * 7aed476 chore: add GitHub issue templates for bug reports and feature requests
+| * bac3e44 docs: add contribution guidelines and branching workflow
+| * 64c4604 docs: add comprehensive project README
+|/  
+* c58f37b (origin/main, origin/HEAD, main) Stop tracking Maven build output
+* a43d9f7 Add evidence capture tooling
+* 6fbe254 Stop tracking Maven build output and add pending changes
+* fdd35bf Add CI/CD pipeline evidence
+* cb77e8a Trigger CI/CD chain test
+* d5b94c9 CI success now triggers the CD job
+* 24e44f7 Add Jenkinsfile.cd for the CD pipeline
+* c1d6a1a Split pipeline: CI job only runs build and tests
+* cdf5610 Add Ansible configuration spec, playbook and first run log for RWH node
+* e8dee58 Point Jenkins PATH at the real Docker folder
+[Process exited with code 0]

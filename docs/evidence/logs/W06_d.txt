@@ -1,0 +1,19 @@
+$ git tag -n && echo. && git show v0.1.0-mvp --stat
+v0.1.0-mvp      MVP complete: registration, logging, dashboard, alerts
+ 
+tag v0.1.0-mvp
+Tagger: Vedant Kulkarni <vedk1211@gmail.com>
+Date:   Thu Oct 29 01:41:25 2026 +0530
+
+MVP complete: registration, logging, dashboard, alerts
+
+commit 4f26f8ed50994981a028ae9ae3f71ce5752dcc7c
+Author: Vedant Kulkarni <vedk1211@gmail.com>
+Date:   Tue Sep 22 15:06:24 2026 +0530
+
+    Add alerts view
+
+ .../rwh/tracker/controller/AlertController.java    |  28 +++++
+ .../resources/templates/alerts/alerts-list.html    | 119 +++++++++++++++++++++
+ 2 files changed, 147 insertions(+)
+[Process exited with code 0]

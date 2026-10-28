@@ -1,0 +1,25 @@
+$ echo === Resolved file === && type docs\evidence\conflict-demo.md && echo. && echo === Git log graph === && git log --oneline --graph --all -10
+=== Resolved file === 
+Status: MVP features complete and ready for CI/CD
+ 
+=== Git log graph === 
+*   d7784fd Resolve merge conflict in conflict-demo.md
+|\  
+| * 04f14cc docs: mark MVP ready for CI/CD
+* | a5022d1 docs: mark MVP features complete
+|/  
+* f556359 docs: add conflict demo base
+| *   898fcbd Merge pull request #5 from vedk1211-lab/develop
+| |\  
+| |/  
+|/|   
+* |   4b418d2 Merge pull request #4 from vedk1211-lab/feature/repo-docs-and-templates
+|\ \  
+| |/  
+|/|   
+| * 9486bb1 chore: add GitHub pull request template
+| * 7aed476 chore: add GitHub issue templates for bug reports and feature requests
+| * bac3e44 docs: add contribution guidelines and branching workflow
+| * 64c4604 docs: add comprehensive project README
+|/  
+[Process exited with code 0]
