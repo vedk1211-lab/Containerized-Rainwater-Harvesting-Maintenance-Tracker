@@ -17,7 +17,6 @@
 | W04_c | 04 | browser | GitHub repository branches overview | `https://github.com/vedk1211-lab/Containerized-Rainwater-Harvesting-Maintenance-Tracker/branches` | 2026-10-29 01:35:20 | 0 |
 | W04_d | 04 | browser | GitHub issues showing delivered retrospective issues | `https://github.com/vedk1211-lab/Containerized-Rainwater-Harvesting-Maintenance-Tracker/issues?q=is%3Aissue` | 2026-10-29 01:35:35 | 0 |
 | W04_e | 04 | terminal | Listing of local and remote repository branches | `git branch -a` | 2026-10-29 01:35:48 | 0 |
-| W06_a | 06 | terminal | Merge conflict triggered between demo/conflict-a and demo/conflict-b | `git merge demo/conflict-b` | 2026-10-29 01:38:43 | 128 |
 | W06_a | 06 | terminal | Merge conflict triggered between demo/conflict-a and demo/conflict-b | `type docs\evidence\conflict-demo.md && echo --- && git status --short` | 2026-10-29 01:39:08 | 0 |
 | W06_b | 06 | terminal | Conflict markers in docs/evidence/conflict-demo.md | `type docs\evidence\conflict-demo.md` | 2026-10-29 01:39:16 | 0 |
 | W06_c | 06 | terminal | Resolved merge conflict and branch graph | `echo === Resolved file === && type docs\evidence\conflict-demo.md && echo. && echo === Git log graph === && git log --oneline --graph --all -10` | 2026-10-29 01:40:45 | 0 |
