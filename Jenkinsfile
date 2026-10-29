@@ -29,11 +29,26 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat 'mvn test -Dspring.profiles.active=test'
+                bat 'mvn test -DexcludedGroups=selenium -Dspring.profiles.active=test'
             }
             post {
                 always {
                     junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Selenium UI Tests') {
+            steps {
+                bat '''
+                    if exist target\\screenshots rd /s /q target\\screenshots
+                    mvn test -Dgroups=selenium -Dspring.profiles.active=test
+                '''
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'target/screenshots/**'
                 }
             }
         }

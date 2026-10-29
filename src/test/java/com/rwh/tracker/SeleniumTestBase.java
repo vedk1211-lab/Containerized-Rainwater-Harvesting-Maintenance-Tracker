@@ -4,6 +4,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.extension.TestWatcher;
@@ -25,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Optional;
 
+@Tag("selenium")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public abstract class SeleniumTestBase {
@@ -52,6 +54,10 @@ public abstract class SeleniumTestBase {
     }
 
     protected String getBaseUrl() {
+        String baseUrl = System.getProperty("app.baseUrl");
+        if (baseUrl != null && !baseUrl.isBlank()) {
+            return baseUrl;
+        }
         return "http://localhost:" + port;
     }
 
